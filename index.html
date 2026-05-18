@@ -148,30 +148,6 @@ input{font-family:inherit;outline:none}
 .card-label::after{content:'';flex:1;height:1px;background:var(--goldborder)}
 
 /* ═══════════════════════════════════════════════
-   API KEY
-═══════════════════════════════════════════════ */
-.key-field{position:relative}
-.key-input{
-  width:100%;background:var(--surface2);
-  border:1.5px solid var(--goldborder);border-radius:var(--radiussm);
-  padding:12px 42px 12px 14px;
-  font-size:14px;color:var(--text);
-  transition:border-color .2s;
-}
-.key-input:focus{border-color:var(--gold)}
-.key-input::placeholder{color:var(--textfaint)}
-.key-eye{
-  position:absolute;right:12px;top:50%;transform:translateY(-50%);
-  color:var(--textdim);font-size:16px;line-height:1;
-  padding:4px;transition:color .2s;
-}
-.key-eye:hover{color:var(--gold)}
-.key-note{font-size:11px;color:var(--textdim);margin-top:8px;line-height:1.6}
-.key-note a{color:var(--gold);text-decoration:none}
-.key-note a:hover{text-decoration:underline}
-.key-ok{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--teal);margin-top:6px}
-
-/* ═══════════════════════════════════════════════
    TOPIC GRID
 ═══════════════════════════════════════════════ */
 .topic-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
@@ -413,8 +389,7 @@ input{font-family:inherit;outline:none}
 ═══════════════════════════════════════════════ */
 .footer{
   text-align:center;margin-top:20px;
-  font-size:11px;color:var(--textfaint);line-height:1.7;
-}
+  font-size:11px;color:var(--textfaint);line-height:1.7}
 
 /* ═══════════════════════════════════════════════
    RESPONSIVE
@@ -439,6 +414,38 @@ input{font-family:inherit;outline:none}
 </div>
 <div id="app"><div class="wrap" id="wrap"></div></div>
 
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+  import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+  // ⚠️ ISI DENGAN KONFIGURASI PROJEK FIREBASE ANDA
+  const firebaseConfig = {
+    apiKey: "AIzaSyYourActualFirebaseKeyHere...",
+    authDomain: "your-project-id.firebaseapp.com",
+    projectId: "your-project-id",
+    storageBucket: "your-project-id.appspot.com",
+    messagingSenderId: "1234567890",
+    appId: "1:1234567890:web:abcdef123456"
+  };
+
+  // Inisialisasi Firebase & Firestore
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  // Expose fungsi simpan hasil ke objek window agar bisa dipanggil dari script kuis utama
+  window.saveQuizResultToFirebase = async function(scoreData) {
+    try {
+      const docRef = await addDoc(collection(db, "quiz_results"), {
+        ...scoreData,
+        timestamp: serverTimestamp()
+      });
+      console.log("Hasil kuis berhasil disimpan ke Firebase dengan ID: ", docRef.id);
+    } catch (e) {
+      console.error("Gagal menyimpan hasil ke Firebase: ", e);
+    }
+  };
+</script>
+
 <script>
 "use strict";
 /* ════════════════════════════════════════════
@@ -458,7 +465,7 @@ const DETAIL={
   KHI:"Kompilasi Hukum Islam (KHI) Inpres No.1/1991. Buku I: Perkawinan (wali nikah, mahar, ijab kabul, hak-kewajiban suami istri, talak, cerai gugat, khuluk, fasakh, iddah, rujuk, mut'ah, nusyuz, syiqaq, poligami, taklik talak). Buku II: Kewarisan (ashabul furudh, ashabah, hajb, aul, radd, mawali, wasiat, hibah). Buku III: Perwakafan (nazhir, ikrar wakaf, benda wakaf, peruntukan wakaf).",
   KHES:"Kompilasi Hukum Ekonomi Syariah (KHES) Perma No.2/2008. Akad dan syaratnya, jual beli (murabahah, salam, istishna), bagi hasil (mudharabah, musyarakah), sewa (ijarah, ijarah muntahiyyah bit tamlik), jaminan (kafalah, rahn), pengalihan utang (hawalah), titipan (wadi'ah), pinjam-meminjam (qardh), pertukaran valuta (sharf), reksa dana syariah, obligasi syariah, asuransi syariah.",
   HAPA:"Hukum Acara Peradilan Agama: UU No.7/1989 diubah UU No.3/2006 dan UU No.50/2009. Kewenangan absolut dan relatif PA, asas persidangan, surat gugatan/permohonan, mediasi (Perma No.1/2016), proses persidangan (pembacaan gugatan, jawaban, eksepsi, rekonvensi, replik, duplik, kesimpulan), pembuktian (surat, saksi, persangkaan, pengakuan, sumpah), putusan sela dan akhir, kekuatan putusan, upaya hukum (banding, kasasi, PK, perlawanan/verzet), eksekusi dan sita, biaya perkara.",
-  ELIT:"E-Litigasi Peradilan Agama: Perma No.1/2019 tentang Administrasi Perkara dan Persidangan Elektronik. e-Court: pendaftaran perkara online, penaksiran panjar biaya perkara elektronik, pembayaran online. e-Summons: panggilan dan pemberitahuan elektronik, domisili elektronik. e-Litigation: jawaban, replik, duplik, kesimpulan secara elektronik, pembuktian elektronik, pemberitahuan putusan elektronik, minutasi elektronik.",
+  ELIT:"E-Litigasi Peradilan Agama: Perma No.1/2019 tentang Administration Perkara dan Persidangan Elektronik. e-Court: pendaftaran perkara online, penaksiran panjar biaya perkara elektronik, pembayaran online. e-Summons: panggilan dan pemberitahuan elektronik, domisili elektronik. e-Litigation: jawaban, replik, duplik, kesimpulan secara elektronik, pembuktian elektronik, pemberitahuan putusan elektronik, minutasi elektronik.",
   HPER:"Hukum Perkawinan: UU No.1/1974 diubah UU No.16/2019, PP No.9/1975, Permenag No.11/2007 tentang pencatatan nikah. Asas monogami, syarat perkawinan (materil dan formil), larangan perkawinan, pencatatan nikah, perjanjian perkawinan, hak-kewajiban suami istri, harta benda perkawinan (asal dan bersama), putusnya perkawinan (cerai talak, cerai gugat, fasakh), akibat hukum perceraian, anak dan orang tua, pembuktian asal-usul anak, perkawinan campuran dan beda agama.",
   UKEH:"UU Kekuasaan Kehakiman No.48/2009. Asas-asas: bebas, mandiri, imparsial, sederhana, cepat, biaya ringan. Mahkamah Agung: susunan, wewenang (kasasi, PK, grasi, fatwa), pengawasan. Mahkamah Konstitusi: kewenangan, judicial review. Badan peradilan di bawah MA: pengadilan umum, agama, militer, TUN. Hakim: persyaratan, pengangkatan, sumpah jabatan, larangan rangkap jabatan, pemberhentian. Komisi Yudisial. Bantuan hukum. Pengadilan khusus.",
   UPAN:"Panitera dan Panitera Pengganti Pengadilan Agama berdasarkan UU No.7/1989 beserta perubahan, SK KMA No.004/SK/II/1992. Panitera: tugas memimpin kepaniteraan, menyelenggarakan administrasi perkara, membuat berita acara sidang, melaksanakan putusan, legalisasi salinan putusan. Panitera Muda: Gugatan, Permohonan, Hukum. Panitera Pengganti: mendampingi hakim, mencatat jalannya sidang, membuat berita acara persidangan, tanggung jawab atas kebenaran BA. Syarat pengangkatan, jenjang karir kepaniteraan.",
@@ -480,7 +487,7 @@ Format: {"questions":[{"id":1,"question":"...","options":{"A":"...","B":"...","C
 ════════════════════════════════════════════ */
 let S={
   screen:"home",
-  apiKey:localStorage.getItem("gk")||"",
+  apiKey:"AIzaSyBPnPENJDjC1zfn8fA9mma-UVlL0Bl0tWY", // Otomatis Menggunakan API Key Anda
   showKey:false,
   topics:[],
   count:20,
@@ -530,8 +537,6 @@ async function callGemini(topic, batch, offset){
 /* ════════════════════════════════════════════
    ACTIONS
 ════════════════════════════════════════════ */
-function saveKey(v){S.apiKey=v;localStorage.setItem("gk",v);render()}
-function toggleKey(){S.showKey=!S.showKey;render()}
 function toggleTopic(id){
   const i=S.topics.indexOf(id);
   if(i>=0)S.topics.splice(i,1);else S.topics.push(id);
@@ -578,7 +583,21 @@ function pick(opt){
   render();
 }
 function next(){
-  if(S.idx+1>=S.questions.length){S.screen="result";}
+  if(S.idx+1>=S.questions.length){
+    S.screen="result";
+    // Mengirim data ke Firebase secara asinkron saat kuis selesai
+    if (window.saveQuizResultToFirebase) {
+      const total = S.questions.length;
+      const pct = Math.round(S.score / total * 100);
+      window.saveQuizResultToFirebase({
+        scorePercentage: pct,
+        correctAnswers: S.score,
+        wrongAnswers: total - S.score,
+        totalQuestions: total,
+        selectedTopics: S.topics
+      });
+    }
+  }
   else{S.idx++;S.picked=null;S.showExpl=false;}
   render();
 }
@@ -625,8 +644,7 @@ function view(){
 
 /* ── HOME ── */
 function viewHome(){
-  const ok=S.apiKey.length>20&&S.topics.length>0;
-  const keyMasked=S.apiKey?`${S.apiKey.slice(0,8)}${"•".repeat(Math.min(20,S.apiKey.length-8))}`:"";
+  const ok=S.topics.length>0;
   return `<div class="anim-up">
     <div class="header">
       <div class="bismillah">بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ</div>
@@ -639,22 +657,6 @@ function viewHome(){
     </div>
 
     ${S.error?`<div class="err">${esc(S.error)}</div>`:""}
-
-    <div class="card">
-      <div class="card-label">🔑 Gemini API Key</div>
-      <div class="key-field">
-        <input class="key-input" id="ki" type="${S.showKey?"text":"password"}"
-          placeholder="AIzaSy..." value="${esc(S.apiKey)}"/>
-        <button class="key-eye" id="ke">${S.showKey?"🙈":"👁️"}</button>
-      </div>
-      ${S.apiKey.length>20
-        ?`<div class="key-ok">✅ API Key tersimpan di browser Anda</div>`
-        :`<div class="key-note">
-            Dapatkan gratis di <a href="https://aistudio.google.com/app/apikey" target="_blank">aistudio.google.com</a>
-            → Get API Key → Create API Key<br/>
-            Key disimpan hanya di perangkat Anda (localStorage), tidak dikirim ke server lain.
-          </div>`}
-    </div>
 
     <div class="card">
       <div class="card-label">📚 Pilih Materi</div>
@@ -684,9 +686,7 @@ function viewHome(){
     </div>
 
     <button class="btn-gold" id="bs" ${ok?"":"disabled"}>
-      ${!S.apiKey||S.apiKey.length<=20
-        ?"🔑 Masukkan Gemini API Key"
-        :S.topics.length===0
+      ${S.topics.length===0
         ?"📚 Pilih minimal 1 materi"
         :`✨ Mulai Kuis — ${S.count} Soal`}
     </button>
@@ -801,10 +801,6 @@ function viewResult(){
    BIND EVENTS
 ════════════════════════════════════════════ */
 function bind(){
-  const ki=document.getElementById("ki");
-  if(ki)ki.addEventListener("input",e=>saveKey(e.target.value));
-  const ke=document.getElementById("ke");
-  if(ke)ke.addEventListener("click",toggleKey);
   document.querySelectorAll(".topic-btn[data-tp]").forEach(b=>b.addEventListener("click",()=>toggleTopic(b.dataset.tp)));
   document.querySelectorAll(".count-btn[data-ct]").forEach(b=>b.addEventListener("click",()=>setCount(+b.dataset.ct)));
   const bs=document.getElementById("bs");
@@ -825,7 +821,7 @@ if("serviceWorker" in navigator){
   const sw=`const C="kuis-v2";
 self.addEventListener("install",e=>e.waitUntil(caches.open(C).then(c=>c.add("/"))));
 self.addEventListener("fetch",e=>{
-  if(e.request.url.includes("googleapis.com")||e.request.url.includes("fonts."))return;
+  if(e.request.url.includes("googleapis.com")||e.request.url.includes("fonts.")||e.request.url.includes("firebasejs"))return;
   e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request)));
 });`;
   const b=new Blob([sw],{type:"application/javascript"});
